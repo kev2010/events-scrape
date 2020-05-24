@@ -1,37 +1,79 @@
-import requests
 import json
-import gql
-import pprint
-from gql import client
-import time
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+import requests
 from selenium.webdriver.chrome.options import Options
-from multiprocessing.dummy import Pool
-from multiprocessing import cpu_count
+from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from constants import *
 
-
-from bs4 import BeautifulSoup
-
-
-# url = "https://www.facebook.com/events/44843505" \
-#       "2621047/?active_tab=discussion"
-
-url = "https://www.facebook.com/events/269422687576001/"
-
+#   Options setup
 chrome_options = Options()
 chrome_options.add_argument("--headless")
-driver = webdriver.Chrome("/Users/kj/Documents/projects/webscrape/test_scrape/chromedriver", options=chrome_options)
-driver.get(url)
+#   Capabilities to get network traffic
+caps = DesiredCapabilities.CHROME
+caps['goog:loggingPrefs'] = { 'performance':'ALL' }
+#   Set up driver
+driver = webdriver.Chrome(CHROMEDRIVER_LOC, desired_capabilities=caps, options=chrome_options)
 
-soup = BeautifulSoup(driver.page_source, 'lxml')
 
-event_name = soup.find('title', {'id': 'pageTitle'}).text
-blurb = soup.find('div', {'id': 'title_subtitle'})
-event_date = blurb.find('span').get('aria-label')
-host = soup.find('div', {'data-testid': 'event_permalink_feature_line'}).get('content')
-location = soup.find('span', {'class': '_5xhk'}).text
-print(event_name)
-print(event_date)
-print(host)
-print(location)
+def scrape_events(urls):
+    """
+    some spec
+    """
+    result = []
+    for url in urls:
+        driver.get(url)
+        browser_log = driver.get_log('performance') 
+        events = [process_browser_log_entry(entry) for entry in browser_log]
+        results = []
+        for event in events:
+            if event['method'] == 'Network.responseReceived' and 'event_ids' in event['params']['response']['url']:
+                    results.append(event)
+
+        get_url = ""
+        if len(results) == 1:
+            get_url = results[0]['params']['response']['url']
+        else:
+            raise ValueError
+
+        json_response = get_request(get_url)
+        event_list = json_response['events']
+        parsed_events = parse_event_page(event_list)
+        result.extend(parsed_events)
+    return result
+
+
+def process_browser_log_entry(entry):
+    """
+    spec
+    """
+    response = json.loads(entry['message'])['message']
+    return response
+
+
+def get_request(url):
+    """
+    spec
+    """
+    r = requests.get(url)
+    data = r.json()
+    return data
+
+
+def parse_event_page(event_page):
+    """
+    beautiful spec
+    """
+    result = []
+    for event_json in event_page:
+        event_name = event_json['name']
+        event_summary = event_json['summary']
+        event_tags = [tag['display_name'] for tag in event_json['tags']]
+        event_url = event_json['url']
+        result.append((event_name, event_summary, event_tags, event_url))
+    return result
+
+
+if __name__ == "__main__":
+    event_list = scrape_events(URLS_TO_VISIT)
+    print(event_list)
+    print(len(event_list))
