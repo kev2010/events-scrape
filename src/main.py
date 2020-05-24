@@ -21,20 +21,24 @@ def scrape_events(urls):
     """
     result = []
     for url in urls:
+        print(url)
         driver.get(url)
         browser_log = driver.get_log('performance') 
         events = [process_browser_log_entry(entry) for entry in browser_log]
         results = []
         for event in events:
-            if event['method'] == 'Network.responseReceived' and 'event_ids' in event['params']['response']['url']:
+            if event['method'] == 'Network.responseReceived':
+                # print(event)
+                if 'event_ids' in event['params']['response']['url']:
                     results.append(event)
 
         get_url = ""
         if len(results) == 1:
             get_url = results[0]['params']['response']['url']
         else:
+            print(results)
             raise ValueError
-
+        print(get_url)
         json_response = get_request(get_url)
         event_list = json_response['events']
         parsed_events = parse_event_page(event_list)
