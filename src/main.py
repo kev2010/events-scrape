@@ -43,6 +43,8 @@ def scrape_events(urls):
         event_list = json_response['events']
         parsed_events = parse_event_page(event_list)
         result.extend(parsed_events)
+    
+    driver.close()
     return result
 
 
