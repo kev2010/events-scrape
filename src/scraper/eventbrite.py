@@ -12,38 +12,52 @@ chrome_options.add_argument("--headless")
 caps = DesiredCapabilities.CHROME
 caps['goog:loggingPrefs'] = { 'performance':'ALL' }
 #   Set up driver
-driver = webdriver.Chrome(CHROMEDRIVER_LOC, desired_capabilities=caps, chrome_options=chrome_options)
+driver = webdriver.Chrome(CHROMEDRIVER_LOC, desired_capabilities=caps, options=chrome_options)
 
 def scrape_events(urls):
     """
-    some spec
+    Scrapes the given EventBrite urls.
+
+    Args:
+        urls (list of str): the urls to scrape
+    Returns:
+        list of lists where each list entry contains information about an event
     """
+    seen_ids = set()
     result = []
     for url in urls:
-        print(url)
+        #   Get all of the Network requests being sent out
+        print(f'Processing {url}')
         driver.get(url)
         browser_log = driver.get_log('performance') 
         events = [process_browser_log_entry(entry) for entry in browser_log]
         results = []
-
+        #   Find the Network request that sends a GET request to EventBrite API
         for event in events:
             if event['method'] == 'Network.responseReceived':
                 # print(event)
                 if 'event_ids' in event['params']['response']['url']:
                     results.append(event)
-                    # print(event)
-
+        #   Get the GET request URL
         get_url = ""
-        if len(results) == 1:
+        #   TODO: Sometimes returning 0 or more than 1... I'm not sure why :(
+        if len(results) >= 1:
             get_url = results[0]['params']['response']['url']
+            #   Get the GET request response JSON
+            json_response = get_request(get_url)
+            event_list = json_response['events']
+            #   Find unique events in the response JSON 
+            unique_event_list = []
+            for event in event_list:
+                if event['id'] not in seen_ids:
+                    seen_ids.add(event['id'])
+                    unique_event_list.append(event)
+
+            parsed_events = parse_event_page(unique_event_list)
+            result.extend(parsed_events)
         else:
             print(results)
-            raise ValueError
-        print(get_url)
-        json_response = get_request(get_url)
-        event_list = json_response['events']
-        parsed_events = parse_event_page(event_list)
-        result.extend(parsed_events)
+            print('yikes something went wrong')
     
     driver.close()
     return result
