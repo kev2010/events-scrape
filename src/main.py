@@ -12,7 +12,7 @@ chrome_options.add_argument("--headless")
 caps = DesiredCapabilities.CHROME
 caps['goog:loggingPrefs'] = { 'performance':'ALL' }
 #   Set up driver
-driver = webdriver.Chrome(CHROMEDRIVER_LOC, desired_capabilities=caps, options=chrome_options)
+driver = webdriver.Chrome(CHROMEDRIVER_LOC, desired_capabilities=caps, chrome_options=chrome_options)
 
 
 def scrape_events(urls):
@@ -26,11 +26,13 @@ def scrape_events(urls):
         browser_log = driver.get_log('performance') 
         events = [process_browser_log_entry(entry) for entry in browser_log]
         results = []
+
         for event in events:
             if event['method'] == 'Network.responseReceived':
                 # print(event)
                 if 'event_ids' in event['params']['response']['url']:
                     results.append(event)
+                    # print(event)
 
         get_url = ""
         if len(results) == 1:

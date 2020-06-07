@@ -4,7 +4,7 @@ CHROMEDRIVER_LOC = "./chromedriver"
 #   URLs to scrape
 #   Note that we look at online events from pages 1 to 50 because EventBrite only displays 1000 events, rest are hidden
 #   TODO: change the URL if you're trying to scrape something other than online events
-URLS_TO_VISIT = ["https://www.eventbrite.com/d/online/all-events/?page=" + str(i) for i in range(1, 51)]
+URLS_TO_VISIT = ["https://www.eventbrite.com/d/online/all-events/?page=" + str(i) for i in range(1, 5)]
 #   EventBrite categories
 BUSINESS_EVENTS = ["https://www.eventbrite.com/d/online/business--events/?page=" + str(i) for i in range(1, 51)]
 FOOD_DRINK_EVENTS = ["https://www.eventbrite.com/d/online/food-and-drink--events/?page=" + str(i) for i in range(1, 51)]
