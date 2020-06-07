@@ -5,15 +5,15 @@ class User:
         self.name = name
         self.tags = tags
         self.keywords = self.get_keywords(tags)
-    
+
     def get_keywords(self, tags):
         keywords = []
         for tag in tags:
             tag.replace(' ', '')
             words = tag.split('&/')
-            keywords.extend(words)
-        return keywords
-        
+            keywords.extend(words.lower())
+        return list(set(keywords))
+
 
 class RecommenderModel:
     def __init__(self, path=None):
@@ -23,13 +23,13 @@ class RecommenderModel:
         self.tag_weight = 3
         self.description_weight = 1
         self.name_weight = 4
-        
-    
+
+
     def _load_events(self, path):
         location = DATABASE_PATH if path is None else path
         events = [] # TODO: Implement me!
         return events
-    
+
 
     def _get_relevant_events(self, start_date, end_date):
         rel_events = []
@@ -50,14 +50,14 @@ class RecommenderModel:
         description_score = 0
         for keyword in keywords:
             description_score += self.description_weight if keyword in event.description else 0
-        
+
         name_score = 0
         for keyword in keywords:
             name_score += self.name_weight if keyword in event.name else 0
 
         cumulative_score = tag_score + description_score + name_score
         return cumulative_score
-    
+
 
     def fit(self, user, start_date, end_date):
         events = self._get_relevant_events(start_date, end_date)
@@ -76,7 +76,7 @@ class RecommenderModel:
 
 
 class Event:
-    def __init__(self, name, description, tags, start_date, end_date, url, event_id=None, image=None, 
+    def __init__(self, name, description, tags, start_date, end_date, url, event_id=None, image=None,
                 min_ticket_price=None, max_ticket_price=None, has_available_tickets=None, tickets_url=None, is_online_event=None):
         self.name = name
         self.description = description
