@@ -1,3 +1,4 @@
+from database import Database
 from config import *
 
 class User:
@@ -17,7 +18,8 @@ class User:
 
 class RecommenderModel:
     def __init__(self, path=None):
-        self.events = self._load_events(path)
+        location = DATABASE_PATH if path is None else path
+        self.events = self._load_events(location)
         self.best_matches = []
 
         self.tag_weight = 3
@@ -26,9 +28,8 @@ class RecommenderModel:
         
     
     def _load_events(self, path):
-        location = DATABASE_PATH if path is None else path
-        events = [] # TODO: Implement me!
-        return events
+        database = Database(path)
+        return database.events
     
 
     def _get_relevant_events(self, start_date, end_date):
@@ -73,21 +74,3 @@ class RecommenderModel:
     def get_matches(self, number=None):
         last_index = len(self.best_matches) if number is None else number
         return self.best_matches[:last_index]
-
-
-class Event:
-    def __init__(self, name, description, tags, start_date, end_date, url, event_id=None, image=None, 
-                min_ticket_price=None, max_ticket_price=None, has_available_tickets=None, tickets_url=None, is_online_event=None):
-        self.name = name
-        self.description = description
-        self.tags = tags
-        self.start_date = start_date
-        self.end_date = end_date
-        self.url = url
-        self.event_id = event_id
-        self.image = image
-        self.min_ticket_price = min_ticket_price
-        self.max_ticket_price = max_ticket_price
-        self.has_available_tickets = has_available_tickets
-        self.tickets_url = tickets_url
-        self.is_online_event = is_online_event

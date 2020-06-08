@@ -52,7 +52,8 @@ def scrape_events(urls):
                 if event['id'] not in seen_ids:
                     seen_ids.add(event['id'])
                     unique_event_list.append(event)
-
+            print('lol')
+            print(unique_event_list)
             parsed_events = parse_event_page(unique_event_list)
             result.extend(parsed_events)
         else:
