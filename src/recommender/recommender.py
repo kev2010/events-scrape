@@ -1,5 +1,5 @@
-from database import Database
-from config import *
+from src.recommender.database import Database
+from src.recommender.config import *
 
 class User:
     def __init__(self, name, tags):
@@ -35,7 +35,8 @@ class RecommenderModel:
     def _get_relevant_events(self, start_date, end_date):
         rel_events = []
         for event in self.events:
-            if event.start_date > start_date and event.start_date <= end_date:
+            #   TODO: change the indexing :(
+            if event.start_date[0] > start_date and event.start_date[0] <= end_date:
                 rel_events += event
         return rel_events
 
@@ -46,15 +47,21 @@ class RecommenderModel:
         tag_score = 0
         for tag in event.tags:
             for keyword in keywords:
-                tag_score += self.tag_weight if keyword in tag else 0
+                keyword_lower = keyword.lower()
+                tag_lower = tag.lower()
+                tag_score += self.tag_weight if keyword_lower in tag_lower else 0
 
         description_score = 0
         for keyword in keywords:
-            description_score += self.description_weight if keyword in event.description else 0
+            keyword_lower = keyword.lower()
+            description_lower = event.description.lower()
+            description_score += self.description_weight if keyword_lower in description_lower else 0
         
         name_score = 0
         for keyword in keywords:
-            name_score += self.name_weight if keyword in event.name else 0
+            keyword_lower = keyword.lower()
+            name_lower = event.name.lower()
+            name_score += self.name_weight if keyword_lower in name_lower else 0
 
         cumulative_score = tag_score + description_score + name_score
         return cumulative_score

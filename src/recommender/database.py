@@ -8,7 +8,7 @@ class Database:
     def _load_events(self, path):
         file = open(path, "r")
         contents = file.read()
-        events_list = ast.literal_eval(contents)
+        events_list = eval(contents)
         file.close()
         
         return [self._convert_event(event) for event in events_list]

@@ -1,6 +1,9 @@
 #   Chromedriver setup
 CHROMEDRIVER_LOC = "./chromedriver"
 
+#   Path to save events
+DATABASE_LOC = "/Users/kj/Documents/GitHub/events-scrape/src/events.txt"
+
 #   EventBrite categories
 EVENT_CATEGORIES = {
     'business': 'business--events',

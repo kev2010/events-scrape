@@ -1,4 +1,5 @@
 import json
+import datetime
 import requests
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
@@ -14,7 +15,7 @@ caps['goog:loggingPrefs'] = { 'performance':'ALL' }
 #   Set up driver
 driver = webdriver.Chrome(CHROMEDRIVER_LOC, desired_capabilities=caps, options=chrome_options)
 
-def scrape_events(urls):
+def scrape_events(path, urls):
     """
     Scrapes the given EventBrite urls.
 
@@ -52,16 +53,14 @@ def scrape_events(urls):
                 if event['id'] not in seen_ids:
                     seen_ids.add(event['id'])
                     unique_event_list.append(event)
-            print('lol')
-            print(unique_event_list)
             parsed_events = parse_event_page(unique_event_list)
             result.extend(parsed_events)
         else:
             print(results)
             print('yikes something went wrong')
     
+    save_events(path, result)
     driver.close()
-    return result
 
 
 def process_browser_log_entry(entry):
@@ -87,15 +86,32 @@ def parse_event_page(event_page):
     """
     result = []
     for event_json in event_page:
-        event_name = event_json['name']
-        event_summary = event_json['summary']
-        event_tags = [tag['display_name'] for tag in event_json['tags']]
-        event_url = event_json['url']
-        result.append((event_name, event_summary, event_tags, event_url))
+        event_dict = {
+            'name': event_json['name'],
+            'description': event_json['summary'],
+            'tags': [tag['display_name'] for tag in event_json['tags']],
+            'start_date': (datetime.datetime(year=int(event_json['start_date'][:4]), month=int(event_json['start_date'][5:7]), day=int(event_json['start_date'][8:]),
+                                    hour=int(event_json['start_time'][:2]), minute=int(event_json['start_time'][3:])), event_json['timezone']),
+            'end_date': (datetime.datetime(year=int(event_json['end_date'][:4]), month=int(event_json['end_date'][5:7]), day=int(event_json['end_date'][8:]),
+                                    hour=int(event_json['end_time'][:2]), minute=int(event_json['end_time'][3:])), event_json['timezone']),
+            'url': event_json['url'],
+            'event_id': event_json['id'],
+            'image': event_json['image']['url'],
+            'min_ticket_price': event_json['ticket_availability']['minimum_ticket_price']['display'],
+            'max_ticket_price': event_json['ticket_availability']['maximum_ticket_price']['display'],
+            'has_available_tickets': not event_json['ticket_availability']['is_sold_out'],
+            'tickets_url': event_json['tickets_url'],
+            'is_online_event': event_json['is_online_event'],
+        }
+        result.append(event_dict)
     return result
 
 
+def save_events(path, events):
+    with open(path, 'w') as file:
+        file.write(str(events))
+
+
 if __name__ == "__main__":
-    event_list = scrape_events(URLS_TO_VISIT)
-    print(event_list)
-    print(len(event_list))
+    urls = ['https://www.eventbrite.com/d/online/business--events/?page=1']
+    scrape_events(DATABASE_LOC, urls)
