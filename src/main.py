@@ -80,6 +80,7 @@ def parse_event_page(event_page):
     return result
 
 
+
 if __name__ == "__main__":
     event_list = scrape_events(URLS_TO_VISIT)
     print(event_list)
