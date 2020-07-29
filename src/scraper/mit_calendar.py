@@ -29,7 +29,7 @@ def save_events(path, events):
         file.write(str(events))
 
 
-def scrape_events(urls, categories_url, path=None):
+def scrape_events_mit(urls, categories_url, path=None):
     categories = get_categories(categories_url)
     all_events = []
     for url in urls:
@@ -63,7 +63,7 @@ def scrape_events(urls, categories_url, path=None):
     save_events(path, all_events)
 
 if __name__ == "__main__":
-    DATES = [(7, i) for i in range(20, 27)]
+    DATES = [(7, i) for i in range(21, 28)]
     urls = [f'https://calendar.mit.edu/calendar/day/2020/{m}/{d}' for m, d in DATES]
     categories_url = 'https://calendar.mit.edu/search/events.xml'
 

@@ -34,7 +34,7 @@ EVENT_CATEGORIES = {
 #   TODO: change the URL if you're trying to scrape something other than online events
 URLS_TO_VISIT = []
 for cat in EVENT_CATEGORIES:
-    urls = [f'https://www.eventbrite.com/d/online/{EVENT_CATEGORIES[cat]}/?page=' + str(i) for i in range(1, 51)]
+    urls = [f'https://www.eventbrite.com/d/online/{EVENT_CATEGORIES[cat]}/?page=' + str(i) for i in range(1, 5)]
     URLS_TO_VISIT.extend(urls)
 
 # BUSINESS_EVENTS = ["https://www.eventbrite.com/d/online/business--events/?page=" + str(i) for i in range(1, 51)]

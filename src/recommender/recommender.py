@@ -1,4 +1,4 @@
-from config import *
+# from config import *
 import time, math
 import random
 from datetime import date, timedelta
@@ -8,10 +8,11 @@ from src.recommender.database import Database
 from src.recommender.config import *
 
 class User:
-    def __init__(self, name, tags):
+    def __init__(self, name, tags, email):
         self.name = name
         self.tags = tags
         self.keywords = tags #self.get_keywords(tags)
+        self.email = email
 
     def get_keywords(self, tags):
         keywords = []
@@ -39,6 +40,32 @@ class User:
 
         return events
 
+    def generate_email_for_events(self, events):
+        email = "Hi " + self.name + ",\n\n"
+        email += "Thank you for your patience! You may remember we sent out a survey about receiving a personalized set of virtual events. "
+        email += "You are receiving this email because we're now ready to send you recommendations! You can see them below. "
+        email += "Please let us know your feedback: which ones do you like the sound of? Which ones are you not interested in? "
+        email += "This will ensure we can be as specific in our recommendations as possible. "
+        email += "\n"
+        email += "------------------------------------\n"
+
+        for event in events:
+            email += event.name + "\n"
+            email += event.description
+            email += "\nLink: " + event.url
+            email += "\n"
+            email += "------------------------------------\n"
+
+        email += "All the best,\nTribe"
+        email += "\n\n\n To unsubscribe, just reply to this email! If you have any feedback, also hit reply!"
+
+        return email
+
+
+
+
+    def __str__(self):
+        print("Event: ", self.name)
 
 
 
@@ -54,16 +81,13 @@ class RecommenderModel:
 
 
     def _load_events(self, path):
-<<<<<<< HEAD
         location = DATABASE_PATH if path is None else path
         events = [] # TODO: Implement me!
         return events
 
-=======
         database = Database(path)
         return database.events
 
->>>>>>> 84251d4fb6e01ca2bc4506cacebd4b620a904238
 
     def _get_relevant_events(self, start_date, end_date):
         rel_events = []
@@ -86,15 +110,12 @@ class RecommenderModel:
 
         description_score = 0
         for keyword in keywords:
-<<<<<<< HEAD
             description_score += self.description_weight if keyword in event.description else 0
 
-=======
             keyword_lower = keyword.lower()
             description_lower = event.description.lower()
             description_score += self.description_weight if keyword_lower in description_lower else 0
 
->>>>>>> 84251d4fb6e01ca2bc4506cacebd4b620a904238
         name_score = 0
         for keyword in keywords:
             keyword_lower = keyword.lower()
@@ -119,7 +140,7 @@ class RecommenderModel:
     def get_matches(self, number=None):
         last_index = len(self.best_matches) if number is None else number
         return self.best_matches[:last_index]
-<<<<<<< HEAD
+
 
 
 class Event:
@@ -200,5 +221,4 @@ if __name__ == "__main__":
     a = get_most_similar(user1, events, 2)
 
     print(a)
-=======
->>>>>>> 84251d4fb6e01ca2bc4506cacebd4b620a904238
+

@@ -58,9 +58,10 @@ def scrape_events(path, urls):
         else:
             print(results)
             print('yikes something went wrong')
-    
-    save_events(path, result)
+
     driver.close()
+    return result
+    # save_events(path, result)
 
 
 def process_browser_log_entry(entry):
@@ -86,24 +87,27 @@ def parse_event_page(event_page):
     """
     result = []
     for event_json in event_page:
-        event_dict = {
-            'name': event_json['name'],
-            'description': event_json['summary'],
-            'tags': [tag['display_name'] for tag in event_json['tags']],
-            'start_date': (datetime.datetime(year=int(event_json['start_date'][:4]), month=int(event_json['start_date'][5:7]), day=int(event_json['start_date'][8:]),
-                                    hour=int(event_json['start_time'][:2]), minute=int(event_json['start_time'][3:])), event_json['timezone']),
-            'end_date': (datetime.datetime(year=int(event_json['end_date'][:4]), month=int(event_json['end_date'][5:7]), day=int(event_json['end_date'][8:]),
-                                    hour=int(event_json['end_time'][:2]), minute=int(event_json['end_time'][3:])), event_json['timezone']),
-            'url': event_json['url'],
-            'event_id': event_json['id'],
-            'image': event_json['image']['url'],
-            'min_ticket_price': event_json['ticket_availability']['minimum_ticket_price']['display'],
-            'max_ticket_price': event_json['ticket_availability']['maximum_ticket_price']['display'],
-            'has_available_tickets': not event_json['ticket_availability']['is_sold_out'],
-            'tickets_url': event_json['tickets_url'],
-            'is_online_event': event_json['is_online_event'],
-        }
-        result.append(event_dict)
+        try:
+            event_dict = {
+                'name': event_json['name'],
+                'description': event_json['summary'],
+                'tags': [tag['display_name'] for tag in event_json['tags']],
+                'start_date': (datetime.datetime(year=int(event_json['start_date'][:4]), month=int(event_json['start_date'][5:7]), day=int(event_json['start_date'][8:]),
+                                        hour=int(event_json['start_time'][:2]), minute=int(event_json['start_time'][3:])), event_json['timezone']),
+                'end_date': (datetime.datetime(year=int(event_json['end_date'][:4]), month=int(event_json['end_date'][5:7]), day=int(event_json['end_date'][8:]),
+                                        hour=int(event_json['end_time'][:2]), minute=int(event_json['end_time'][3:])), event_json['timezone']),
+                'url': event_json['url'],
+                'event_id': event_json['id'],
+                'image': event_json['image']['url'],
+                'min_ticket_price': event_json['ticket_availability']['minimum_ticket_price']['display'],
+                'max_ticket_price': event_json['ticket_availability']['maximum_ticket_price']['display'],
+                'has_available_tickets': not event_json['ticket_availability']['is_sold_out'],
+                'tickets_url': event_json['tickets_url'],
+                'is_online_event': event_json['is_online_event'],
+            }
+            result.append(event_dict)
+        except:
+            continue
     return result
 
 
