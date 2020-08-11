@@ -51,6 +51,7 @@ class User:
 
         for event in events:
             email += event.name + "\n"
+            email += "Start: " + str(event.start_date) + "End: " + str(event.end_date) + "\n"
             email += event.description
             email += "\nLink: " + event.url
             email += "\n"
